@@ -32,7 +32,8 @@ app.get('/api/graves', async (req, res) => {
 // ===== ��������� ������ =====
 app.post('/api/graves', async (req, res) => {
     try {
-        const { x, y, name, text, texture } = req.body;
+        // 🔥 ДОБАВЛЯЕМ rotation
+        const { x, y, name, text, texture, rotation } = req.body;
 
         const response = await fetch(`${SUPABASE_URL}/rest/v1/graves`, {
             method: 'POST',
@@ -42,7 +43,14 @@ app.post('/api/graves', async (req, res) => {
                 'Content-Type': 'application/json',
                 'Prefer': 'return=representation'
             },
-            body: JSON.stringify({ x, y, name, text, texture })
+            body: JSON.stringify({ 
+                x, 
+                y, 
+                name, 
+                text, 
+                texture, 
+                rotation: rotation || 0   // если не пришло – ставим 0
+            })
         });
 
         const data = await response.json();
