@@ -3,7 +3,7 @@ updated name, cursor, also made it a bit more style
 
 Бескрайнее кладбище с могилами.
 
-## Что нового
+## Что нового 
 
 - Добавлены текстуры mogila5.png и mogila6.png (теперь 6 разных могил)
 - Могилы теперь ставятся со случайным наклоном от -60° до +60°
@@ -14,3 +14,5 @@ updated name, cursor, also made it a bit more style
 
 - Сайт: https://gravesonline.netlify.app/
 
+## Что нового 2
+- Небольшое затемнение вокруг могил
