@@ -13,4 +13,4 @@ updated name, cursor, also made it a bit more style
 ## Ссылки
 
 - Сайт: https://gravesonline.netlify.app/
-- API: https://beskrainie-server.onrender.com/
+
