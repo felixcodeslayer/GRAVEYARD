@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gravesonline.netlify.app/sitemap.xml
