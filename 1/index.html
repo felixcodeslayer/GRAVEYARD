@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Бескрайнее полотно</title>
+    <meta name="description" content="Бескрайнее полотно — интерактивное кладбище воспоминаний. Оставь могилу с именем и эпитафией, броди по бесконечному полю.">
+    <link rel="canonical" href="https://gravesonline.netlify.app/">
+    <meta property="og:title" content="Бескрайнее полотно">
+    <meta property="og:description" content="Интерактивное кладбище воспоминаний. Оставь свою могилу на бескрайнем поле.">
+    <meta property="og:url" content="https://gravesonline.netlify.app/">
+    <meta property="og:type" content="website">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden;background:#050505;font-family:'Courier New',monospace;cursor:url('Images/lopata.png') 32 32,auto;touch-action:none;user-select:none;color:#a0a0a0}canvas{display:block;width:100vw;height:100vh;touch-action:none}canvas:active{cursor:url('Images/lopata2.png') 32 32,auto}.modal{position:fixed;transform:translate(-50%,-50%);display:none;background:rgba(5,5,5,0.97);border:1px solid #2a2a2a;border-radius:4px;padding:20px;z-index:100;color:#a0a0a0;box-shadow:0 0 25px rgba(0,0,0,0.9);max-width:90vw;width:500px;font-family:'Courier New',monospace;backdrop-filter:blur(10px);pointer-events:auto;max-height:90vh;overflow-y:auto}.modal input,.modal textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#ccc;padding:8px;margin-bottom:10px;border-radius:2px;font-family:inherit;font-size:14px;box-sizing:border-box;resize:vertical;cursor:url('Images/lopata_text.png') 32 32,text}.modal textarea{min-height:70px}.modal button{background:#1a1a1a;border:1px solid #333;color:#bbb;padding:8px 16px;border-radius:2px;cursor:pointer;font-family:inherit;font-size:14px;margin-right:8px;transition:.2s}.modal button:hover{background:#2a2a2a;border-color:#444}.modal button.cancel{background:transparent;border:1px solid #2a2a2a;color:#888}.modal button.cancel:hover{background:#111}.modal label{display:block;margin-bottom:4px;font-size:13px;color:#777}.form-row{display:flex;gap:16px;margin-bottom:6px}.form-col-left{flex:1;min-width:0}.form-col-right{flex:0 0 120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-left:1px solid #222;padding-left:12px}.form-col-right label{font-size:12px;color:#777;margin-bottom:2px}.preview-block{display:flex;flex-direction:column;align-items:center;gap:8px}.preview-block button{background:transparent;border:none;color:#888;font-size:22px;cursor:pointer;padding:0;line-height:1;transition:.2s}.preview-block button:hover{color:#ccc}.preview-block .preview-img{border:1px solid #333;border-radius:4px;padding:6px;background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:80px;min-width:80px}.preview-block .preview-img img{max-height:80px;max-width:80px;width:auto;height:auto;display:block;image-rendering:pixelated;filter:grayscale(.2)}.preview-block .counter{font-size:12px;color:#666}#graveInfo h3{margin:0 0 8px;color:#bbb;font-size:16px}#graveInfo p{margin:4px 0;font-size:13px;color:#777;word-wrap:break-word}#graveInfo .close-btn{margin-top:12px}
+
+        .donate-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            padding: 6px 8px;
+            background: #0a0a0a;
+            border-radius: 3px;
+            border: 1px solid #1a1a1a;
+        }
+        .donate-row .label {
+            font-size: 14px;
+            color: #888;
+            min-width: 30px;
+            text-align: center;
+        }
+        .donate-row .address {
+            color: #ccc;
+            font-size: 13px;
+            word-break: break-all;
+            flex: 1;
+            font-family: inherit;
+        }
+        .donate-row .action-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #999;
+            padding: 2px 12px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+        .donate-row .action-btn:hover {
+            background: #1a1a1a;
+            border-color: #555;
+            color: #ccc;
+        }
+        .donate-hint {
+            display: block;
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+            flex-basis: 100%;
+        }
+
+        #ui{position:fixed;top:20px;right:20px;z-index:1000;display:flex;gap:5px;background:rgba(0,0,0,.85);padding:5px;border-radius:4px;border:1px solid #222;backdrop-filter:blur(4px)}#ui button,#ui span{background:transparent;color:#999;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:16px;font-weight:700;transition:.2s}#ui button:hover{background:#1a1a1a;color:#ccc}#ui span{cursor:default;min-width:50px;text-align:center;font-size:14px;color:#888}#musicBtn.playing{border-color:#555;box-shadow:0 0 15px rgba(80,80,80,.2)}#musicBtn{border:1px solid transparent}#welcomeOverlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.95);z-index:9999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .6s ease;pointer-events:auto}#welcomeOverlay.hidden{opacity:0;pointer-events:none}#welcomeModal{display:block;position:relative;transform:none;width:360px;text-align:center;background:#000;border:none;padding:30px;border-radius:4px;box-shadow:none;backdrop-filter:none}#welcomeModal h1{margin:0 0 20px;color:#fff;font-size:24px;letter-spacing:3px;font-weight:300}#welcomeModal .desc{margin:0 0 25px;line-height:1.6;font-size:14px;color:#aaa}#welcomeModal button{display:block;width:100%;background:transparent;color:#fff;border:none;padding:12px;border-radius:2px;cursor:pointer;font-family:inherit;font-size:16px;letter-spacing:1px;transition:all .3s ease}#welcomeModal button:hover{background:#1a1a1a;color:#ccc}#startButton{margin-bottom:30px;font-size:18px}#donateBtn{margin-top:30px;font-size:15px;color:#aaa}#donateBtn:hover{color:#fff}#walletDisplay{display:none;margin-top:15px;padding:12px;background:#0a0a0a;border:1px solid #1a1a1a;color:#888;font-size:13px;word-break:break-all;border-radius:2px;letter-spacing:1px;transition:.3s;user-select:text;-webkit-user-select:text}#walletDisplay.visible{display:block}#coords{position:fixed;bottom:20px;right:20px;color:rgba(255,255,255,.3);font-size:12px;font-family:'Courier New',monospace;pointer-events:none;z-index:1000;user-select:none;text-align:right;line-height:1.4;letter-spacing:.5px;text-shadow:0 0 10px rgba(0,0,0,.8)}@media(max-width:600px){#ui{top:10px;right:10px}#ui button,#ui span{padding:4px 8px;font-size:14px}#welcomeModal{width:85vw;padding:20px}#welcomeModal h1{font-size:20px}#coords{font-size:10px;bottom:10px;right:10px}.modal{width:92vw;padding:12px}.form-row{flex-direction:column;gap:8px}.form-col-right{flex:1;width:100%;border-left:none;border-top:1px solid #222;padding-left:0;padding-top:10px;flex-direction:row;flex-wrap:wrap;justify-content:center}.preview-block{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:4px}.preview-block .preview-img{min-height:60px;min-width:60px}.preview-block .preview-img img{max-height:60px;max-width:60px}}
+    </style>
+</head>
+<body>
+    <canvas id="earthCanvas"></canvas>
+
+    <div id="welcomeOverlay">
+        <div id="welcomeModal">
+            <button id="startButton">Начать</button>
+            <div class="desc">Кликни по пустому месту, чтобы оставить могилу.<br>Потяни, чтобы бродить по бесконечности.<br>Используй <b>+</b> и <b>−</b>, чтобы вглядеться в пустоту.</div>
+            <button id="donateBtn">Поддержать автора</button>
+            <div id="walletDisplay">
+                <div class="donate-row">
+                    <span class="label">💳</span>
+                    <span class="address">Boosty</span>
+                    <a href="https://boosty.to/felixcodeslayer/donate" target="_blank" class="action-btn">Открыть</a>
+                    <span class="donate-hint">Поддержать через Boosty (карта, СБП)</span>
+                </div>
+                <div class="donate-row">
+                    <span class="label">₿</span>
+                    <span class="address" id="walletAddress">0xEb3E5cDD13b4FC6977F676611D4c6A7F3E3DEccb</span>
+                    <button class="action-btn" id="copyWalletBtn">Копировать</button>
+                    <span class="donate-hint">USDT (BEP20 / ERC20)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="graveForm" class="modal">
+        <div class="form-row">
+            <div class="form-col-left">
+                <label>Имя</label>
+                <input type="text" id="graveName" placeholder="Кто здесь лежит...">
+                <label>Эпитафия</label>
+                <textarea id="graveText" placeholder="Последние слова..."></textarea>
+                <div style="display:flex;gap:8px;margin-top:6px">
+                    <button id="submitGrave">Поставить</button>
+                    <button id="cancelGrave" class="cancel">Отмена</button>
+                </div>
+            </div>
+            <div class="form-col-right">
+                <label>Выберите надгробие</label>
+                <div class="preview-block">
+                    <button id="prevGrave" title="Предыдущая">▲</button>
+                    <div class="preview-img"><img id="gravePreview" src="" alt="Могила"></div>
+                    <button id="nextGrave" title="Следующая">▼</button>
+                    <span class="counter" id="graveCounter">1/8</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="graveInfo" class="modal">
+        <h3 id="infoName">Имя</h3>
+        <p id="infoText">Эпитафия</p>
+        <p id="infoCoords" style="font-size:11px;color:#555;">Координаты</p>
+        <button class="close-btn" id="closeInfo">✕ Закрыть</button>
+    </div>
+
+    <div id="ui">
+        <button id="zoomOut">−</button>
+        <span id="zoomLevel">1.0x</span>
+        <button id="zoomIn">+</button>
+        <button id="musicBtn">🔇</button>
+    </div>
+    <div id="coords">0.0, 0.0</div>
+
+    <audio id="bgSound" loop><source src="sounds/melodyFON.wav" type="audio/wav"></audio>
+    <audio id="graveSound"><source src="sounds/MOGILA.wav" type="audio/wav"></audio>
+    <audio id="clickSound"><source src="sounds/CLICK.wav" type="audio/wav"></audio>
+
+    <script>
+        // === Инициализация ===
+        const canvas = document.getElementById('earthCanvas');
+        const ctx = canvas.getContext('2d');
+        const API_URL = 'https://beskrainie-server.onrender.com/api';
+
+        const ui = {
+            form: document.getElementById('graveForm'),
+            name: document.getElementById('graveName'),
+            text: document.getElementById('graveText'),
+            submit: document.getElementById('submitGrave'),
+            cancel: document.getElementById('cancelGrave'),
+            info: document.getElementById('graveInfo'),
+            infoName: document.getElementById('infoName'),
+            infoText: document.getElementById('infoText'),
+            infoCoords: document.getElementById('infoCoords'),
+            closeInfo: document.getElementById('closeInfo'),
+            musicBtn: document.getElementById('musicBtn'),
+            zoomIn: document.getElementById('zoomIn'),
+            zoomOut: document.getElementById('zoomOut'),
+            zoomLevel: document.getElementById('zoomLevel')
+        };
+
+        const prevBtn = document.getElementById('prevGrave');
+        const nextBtn = document.getElementById('nextGrave');
+        const gravePreview = document.getElementById('gravePreview');
+        const graveCounter = document.getElementById('graveCounter');
+
+        const welcomeOverlay = document.getElementById('welcomeOverlay');
+        const startButton = document.getElementById('startButton');
+        const donateBtn = document.getElementById('donateBtn');
+        const walletDisplay = document.getElementById('walletDisplay');
+
+        const TILE_SIZE = 400;
+        const BG_IMG = 'Images/grunt.jpg';
+        const GRAVE_IMGS = [
+            'Images/mogila1.png','Images/mogila2.png','Images/mogila3.png',
+            'Images/mogila4.png','Images/mogila5.png','Images/mogila6.png',
+            'Images/mogila7.png','Images/mogila8.png'
+        ];
+
+        let graveTextures = [null,null,null,null,null,null,null,null];
+        let backgroundImg = null;
+        let cameraX = 0, cameraY = 0;
+        const BASE_ZOOM = 2.0;
+        let zoom = BASE_ZOOM;
+        let isDragging = false;
+        let dragStart = { x:0, y:0, cx:0, cy:0 };
+        let clickPos = { x:0, y:0 };
+        let selectedGraveType = 0;
+        let currentGraveId = null;
+
+        // ===== ЧАНКОВОЕ ХРАНИЛИЩЕ =====
+        const CHUNK_SIZE = 200;
+        const loadedChunks = new Map(); // ключ "cx,cy" -> массив могил
+        let allGraves = [];
+        let isLoading = false;
+        let lastLoadedArea = null;
+
+        const coordsEl = document.getElementById('coords');
+
+        function updateCoords(clientX, clientY) {
+            if (!clientX || !clientY) return;
+            const rect = canvas.getBoundingClientRect();
+            const wx = (clientX - rect.left) / zoom + cameraX;
+            const wy = (clientY - rect.top) / zoom + cameraY;
+            coordsEl.textContent = `${wx.toFixed(1)}, ${wy.toFixed(1)}`;
+        }
+
+        const playSound = id => {
+            const s = document.getElementById(id);
+            if (s) { s.currentTime = 0; s.play().catch(()=>{}); }
+        };
+        const toggleBgSound = () => {
+            const bg = document.getElementById('bgSound');
+            bg.paused ? (bg.play().catch(()=>{}), ui.musicBtn.textContent='🔊', ui.musicBtn.classList.add('playing'))
+                     : (bg.pause(), ui.musicBtn.textContent='🔇', ui.musicBtn.classList.remove('playing'));
+        };
+
+        // === Загрузка ресурсов ===
+        const loadAssets = async () => {
+            const loadImg = (src) => new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
+            try {
+                const loaded = await Promise.all(GRAVE_IMGS.map(src=>loadImg(src)));
+                [backgroundImg, ...graveTextures] = [await loadImg(BG_IMG), ...loaded];
+                updatePreview();
+                // Загружаем начальные чанки
+                loadVisibleChunks();
+                drawScene();
+            } catch(e) { console.warn('Ошибка загрузки текстур:', e); }
+        };
+
+        function updatePreview() {
+            const img = graveTextures[selectedGraveType];
+            if (img) { gravePreview.src = img.src; gravePreview.style.display='block'; }
+            else { gravePreview.style.display='none'; }
+            graveCounter.textContent = `${selectedGraveType+1}/${graveTextures.length}`;
+        }
+        function prevGrave() { if(graveTextures.length===0)return; selectedGraveType=(selectedGraveType-1+graveTextures.length)%graveTextures.length; updatePreview(); }
+        function nextGrave() { if(graveTextures.length===0)return; selectedGraveType=(selectedGraveType+1)%graveTextures.length; updatePreview(); }
+
+        // === Чанковая логика ===
+        function getChunkKey(cx, cy) { return `${cx},${cy}`; }
+        function getChunkCoords(worldX, worldY) {
+            return { cx: Math.floor(worldX / CHUNK_SIZE), cy: Math.floor(worldY / CHUNK_SIZE) };
+        }
+
+        function getVisibleChunks() {
+            const w = canvas.width / zoom;
+            const h = canvas.height / zoom;
+            const minX = cameraX;
+            const minY = cameraY;
+            const maxX = cameraX + w;
+            const maxY = cameraY + h;
+            const margin = CHUNK_SIZE * 1.5;
+            const startX = Math.floor((minX - margin) / CHUNK_SIZE);
+            const startY = Math.floor((minY - margin) / CHUNK_SIZE);
+            const endX = Math.floor((maxX + margin) / CHUNK_SIZE);
+            const endY = Math.floor((maxY + margin) / CHUNK_SIZE);
+            const chunks = [];
+            for (let cx = startX; cx <= endX; cx++) {
+                for (let cy = startY; cy <= endY; cy++) {
+                    chunks.push({ cx, cy });
+                }
+            }
+            return chunks;
+        }
+
+        function loadVisibleChunks() {
+            if (isLoading) return;
+            const chunks = getVisibleChunks();
+            if (chunks.length === 0) return;
+
+            // Вычисляем общую область
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (const {cx, cy} of chunks) {
+                const x1 = cx * CHUNK_SIZE;
+                const y1 = cy * CHUNK_SIZE;
+                const x2 = x1 + CHUNK_SIZE;
+                const y2 = y1 + CHUNK_SIZE;
+                if (x1 < minX) minX = x1;
+                if (x2 > maxX) maxX = x2;
+                if (y1 < minY) minY = y1;
+                if (y2 > maxY) maxY = y2;
+            }
+            const margin = CHUNK_SIZE * 0.5;
+            minX -= margin; maxX += margin;
+            minY -= margin; maxY += margin;
+
+            const areaKey = `${minX.toFixed(1)},${maxX.toFixed(1)},${minY.toFixed(1)},${maxY.toFixed(1)}`;
+            if (lastLoadedArea === areaKey) return;
+            lastLoadedArea = areaKey;
+
+            isLoading = true;
+            // Пытаемся использовать новый эндпоинт, если он есть, иначе fallback на старый
+            const url = `${API_URL}/graves/area?minX=${minX}&maxX=${maxX}&minY=${minY}&maxY=${maxY}`;
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error('Area endpoint failed');
+                    return res.json();
+                })
+                .then(data => {
+                    processChunkData(data);
+                    isLoading = false;
+                })
+                .catch(err => {
+                    // Fallback: загрузить все могилы
+                    console.warn('Чанковый эндпоинт недоступен, загружаем все могилы:', err);
+                    fetch(`${API_URL}/graves`)
+                        .then(r => r.ok ? r.json() : Promise.reject())
+                        .then(data => {
+                            allGraves = data;
+                            // Кэшируем все могилы как один чанк (для совместимости)
+                            loadedChunks.clear();
+                            loadedChunks.set('0,0', data);
+                            drawScene();
+                            isLoading = false;
+                        })
+                        .catch(e => console.error('Ошибка загрузки могил:', e));
+                });
+        }
+
+        function processChunkData(data) {
+            // Разбиваем полученные могилы по чанкам
+            const chunkMap = new Map();
+            data.forEach(grave => {
+                const { cx, cy } = getChunkCoords(grave.x, grave.y);
+                const key = getChunkKey(cx, cy);
+                if (!chunkMap.has(key)) chunkMap.set(key, []);
+                chunkMap.get(key).push(grave);
+            });
+            chunkMap.forEach((graves, key) => {
+                loadedChunks.set(key, graves);
+            });
+            // Обновляем allGraves
+            allGraves = [];
+            for (const graves of loadedChunks.values()) {
+                allGraves = allGraves.concat(graves);
+            }
+            drawScene();
+        }
+
+        // === Отрисовка ===
+        function hashCoords(x,y) {
+            let h = x*374761393 + y*668265263;
+            h = (h ^ (h>>13)) * 1274126177;
+            h = (h ^ (h>>16)) & 0xFFFFFFFF;
+            return h / 0xFFFFFFFF;
+        }
+
+        const drawScene = () => {
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0,0,w,h);
+            ctx.save();
+            ctx.scale(zoom, zoom);
+            ctx.translate(-cameraX, -cameraY);
+
+            if (backgroundImg) {
+                const sX = Math.floor((cameraX-2000)/TILE_SIZE)*TILE_SIZE;
+                const sY = Math.floor((cameraY-2000)/TILE_SIZE)*TILE_SIZE;
+                const eX = Math.ceil((cameraX + w/zoom + 2000)/TILE_SIZE)*TILE_SIZE;
+                const eY = Math.ceil((cameraY + h/zoom + 2000)/TILE_SIZE)*TILE_SIZE;
+                for (let x=sX; x<eX; x+=TILE_SIZE)
+                    for (let y=sY; y<eY; y+=TILE_SIZE)
+                        ctx.drawImage(backgroundImg, x, y, TILE_SIZE, TILE_SIZE);
+            }
+
+            for (let i=0; i<allGraves.length; i++) {
+                try { drawGrave(allGraves[i]); } catch(e) {}
+            }
+
+            ctx.restore();
+            const grad = ctx.createRadialGradient(w/2, h/2, h*0.3, w/2, h/2, h*0.95);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(0.5, 'rgba(0,0,0,0.2)');
+            grad.addColorStop(0.8, 'rgba(0,0,0,0.6)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.95)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,w,h);
+        };
+
+        const drawGrave = (g) => {
+            if (g.x==null || g.y==null || typeof g.x!=='number') return;
+            const sx=g.x, sy=g.y, size=42;
+            const img = graveTextures[g.texture];
+            const angle = g.rotation || 0;
+
+            ctx.save();
+            ctx.translate(sx, sy);
+            ctx.rotate(angle);
+
+            const seed1 = hashCoords(sx,sy);
+            const seed2 = hashCoords(sx+1.7, sy+3.1);
+            const seed3 = hashCoords(sx+5.3, sy-2.9);
+
+            const mainRadius = 28;
+            const grad1 = ctx.createRadialGradient(0,0,0,0,0,mainRadius);
+            grad1.addColorStop(0, 'rgba(0,0,0,0.3)');
+            grad1.addColorStop(0.7, 'rgba(0,0,0,0.1)');
+            grad1.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad1;
+            ctx.beginPath();
+            ctx.arc(0,0,mainRadius,0,Math.PI*2);
+            ctx.fill();
+
+            const offsetX = (seed1-0.5)*12;
+            const offsetY = (seed2-0.5)*12;
+            const radius2 = 18 + seed3*8;
+            const grad2 = ctx.createRadialGradient(offsetX,offsetY,0,offsetX,offsetY,radius2);
+            grad2.addColorStop(0, 'rgba(0,0,0,0.1)');
+            grad2.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad2;
+            ctx.beginPath();
+            ctx.arc(offsetX,offsetY,radius2,0,Math.PI*2);
+            ctx.fill();
+
+            const offsetX3 = (seed2-0.5)*18;
+            const offsetY3 = (seed3-0.5)*18;
+            const radius3 = 12 + seed1*6;
+            const grad3 = ctx.createRadialGradient(offsetX3,offsetY3,0,offsetX3,offsetY3,radius3);
+            grad3.addColorStop(0, 'rgba(0,0,0,0.06)');
+            grad3.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad3;
+            ctx.beginPath();
+            ctx.arc(offsetX3,offsetY3,radius3,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 25;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 5;
+
+            if (img) {
+                const aspect = img.width / img.height;
+                let dw, dh;
+                if (aspect > 1) { dw = size; dh = size / aspect; }
+                else { dh = size; dw = size * aspect; }
+                ctx.drawImage(img, -dw/2, -dh/2 -5, dw, dh);
+            } else {
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#1a1a1a';
+                ctx.strokeStyle = '#0a0a0a';
+                ctx.lineWidth = 2;
+                ctx.fillRect(-12,-30,24,30);
+                ctx.strokeRect(-12,-30,24,30);
+                ctx.fillStyle = '#2a2a2a';
+                ctx.fillRect(-2,-45,4,15);
+                ctx.fillRect(-8,-40,16,4);
+            }
+            ctx.restore();
+        };
+
+        // === Обработка кликов ===
+        const getWorldCoords = (clientX, clientY) => {
+            const rect = canvas.getBoundingClientRect();
+            return { x: (clientX - rect.left) / zoom + cameraX, y: (clientY - rect.top) / zoom + cameraY };
+        };
+        const getGraveAt = (wx, wy) => {
+            for (let i=allGraves.length-1; i>=0; i--) {
+                const g = allGraves[i];
+                if (Math.hypot(wx-g.x, wy-g.y) < 40) return g;
+            }
+            return null;
+        };
+        const isTooClose = (x, y) => allGraves.some(g => Math.hypot(g.x-x, g.y-y) < 80);
+
+        const handleClick = (clientX, clientY) => {
+            const { x, y } = getWorldCoords(clientX, clientY);
+            const grave = getGraveAt(x, y);
+            if (grave) {
+                showGraveInfo(grave, clientX, clientY);
+                return;
+            }
+            clickPos = { x, y };
+            showForm(clientX, clientY);
+        };
+
+        const showGraveInfo = (g, cx, cy) => {
+            ui.infoName.textContent = g.name || 'Безымянная';
+            ui.infoText.textContent = g.text || '(беззвучная тишина)';
+            ui.infoCoords.textContent = `📍 x: ${Math.round(g.x)}, y: ${Math.round(g.y)}`;
+            positionModal(ui.info, cx, cy, 500, 300);
+            ui.info.style.display = 'block';
+            currentGraveId = g.id;
+        };
+
+        const showForm = (cx, cy) => {
+            positionModal(ui.form, cx, cy, 480, 350);
+            ui.form.style.display = 'block';
+            ui.name.value = ''; ui.text.value = '';
+            ui.name.focus();
+            updatePreview();
+        };
+
+        const positionModal = (el, cx, cy, w, h) => {
+            let left = Math.max(w/2+10, Math.min(cx, window.innerWidth - w/2 - 10));
+            let top = Math.max(h/2+20, Math.min(cy, window.innerHeight - h/2 - 20));
+            el.style.left = left + 'px';
+            el.style.top = top + 'px';
+        };
+
+        const hideAllModals = () => {
+            ui.form.style.display = 'none';
+            ui.info.style.display = 'none';
+        };
+
+        // === События ===
+        document.getElementById('copyWalletBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const text = document.getElementById('walletAddress').textContent.trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(()=>alert('✅ Адрес скопирован в буфер обмена!'))
+                .catch(()=>fallbackCopy(text));
+            } else { fallbackCopy(text); }
+        });
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); alert('✅ Адрес скопирован в буфер обмена!'); }
+            catch(err) { alert('❌ Не удалось скопировать. Выделите адрес вручную.'); }
+            document.body.removeChild(ta);
+        }
+
+        const attachPointerEvents = (el) => {
+            let startX, startY, camStartX, camStartY, moved = false;
+            const onStart = (x,y) => {
+                isDragging = true; moved = false;
+                startX = x; startY = y;
+                camStartX = cameraX; camStartY = cameraY;
+                playSound('clickSound');
+            };
+            const onMove = (x,y) => {
+                if (!isDragging) return;
+                const dx = x-startX, dy = y-startY;
+                if (Math.abs(dx)>3 || Math.abs(dy)>3) moved = true;
+                cameraX = camStartX - dx/zoom;
+                cameraY = camStartY - dy/zoom;
+                // Подгружаем чанки после перемещения
+                loadVisibleChunks();
+                drawScene();
+            };
+            const onEnd = (x,y) => {
+                if (!isDragging) return;
+                isDragging = false;
+                if (!moved) handleClick(x,y);
+            };
+            el.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', e => onEnd(e.clientX, e.clientY));
+            el.addEventListener('touchstart', e => { e.preventDefault(); const t=e.touches[0]; onStart(t.clientX,t.clientY); }, { passive:false });
+            window.addEventListener('touchmove', e => { const t=e.touches[0]; if(t) onMove(t.clientX,t.clientY); }, { passive:false });
+            window.addEventListener('touchend', e => { const t=e.changedTouches[0]; if(t) onEnd(t.clientX,t.clientY); }, { passive:false });
+        };
+
+        canvas.addEventListener('mousemove', e => updateCoords(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', e => { const t=e.touches[0]; if(t) updateCoords(t.clientX,t.clientY); }, { passive:true });
+        canvas.addEventListener('touchmove', e => { const t=e.touches[0]; if(t) updateCoords(t.clientX,t.clientY); }, { passive:true });
+
+        const updateZoom = (newZoom) => {
+            zoom = Math.max(0.5, Math.min(3.0, newZoom));
+            ui.zoomLevel.textContent = (zoom / BASE_ZOOM).toFixed(1) + 'x';
+            loadVisibleChunks();
+            drawScene();
+        };
+
+        prevBtn.addEventListener('click', prevGrave);
+        nextBtn.addEventListener('click', nextGrave);
+
+        ui.submit.addEventListener('click', async () => {
+            const name = ui.name.value.trim();
+            const text = ui.text.value.trim();
+            if (!name && !text) return alert('Оставь хотя бы имя или последние слова.');
+            if (isTooClose(clickPos.x, clickPos.y)) return alert('Слишком близко к другой могиле. Не тревожь покой.');
+            const textureIndex = selectedGraveType;
+            const minAngle = -60 * (Math.PI/180);
+            const maxAngle = 60 * (Math.PI/180);
+            const randomAngle = minAngle + Math.random()*(maxAngle-minAngle);
+            const newGrave = {
+                x: clickPos.x, y: clickPos.y,
+                name: name || 'Безымянная',
+                text: text || '',
+                texture: textureIndex,
+                rotation: randomAngle
+            };
+            // Добавляем локально
+            const { cx, cy } = getChunkCoords(newGrave.x, newGrave.y);
+            const key = getChunkKey(cx, cy);
+            if (!loadedChunks.has(key)) loadedChunks.set(key, []);
+            loadedChunks.get(key).push(newGrave);
+            allGraves.push(newGrave);
+
+            hideAllModals();
+            drawScene();
+            playSound('graveSound');
+            try {
+                const res = await fetch(`${API_URL}/graves`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newGrave)
+                });
+                if (res.ok) {
+                    const saved = await res.json();
+                    const rotationBackup = newGrave.rotation;
+                    Object.assign(newGrave, saved);
+                    newGrave.rotation = rotationBackup;
+                }
+            } catch(e) { console.error('Ошибка сохранения:', e); }
+        });
+
+        ui.cancel.addEventListener('click', hideAllModals);
+        ui.closeInfo.addEventListener('click', hideAllModals);
+        document.addEventListener('click', (e) => {
+            if (ui.info.style.display==='block' && !ui.info.contains(e.target) && e.target!==canvas) hideAllModals();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key==='Escape') hideAllModals();
+            if (e.key==='Enter' && !e.shiftKey && ui.form.style.display==='block') ui.submit.click();
+            if (e.key==='m' || e.key==='M') toggleBgSound();
+        });
+
+        ui.musicBtn.addEventListener('click', toggleBgSound);
+        ui.zoomIn.addEventListener('click', () => updateZoom(zoom+0.1));
+        ui.zoomOut.addEventListener('click', () => updateZoom(zoom-0.1));
+
+        startButton.addEventListener('click', () => { welcomeOverlay.classList.add('hidden'); });
+        donateBtn.addEventListener('click', () => { walletDisplay.classList.toggle('visible'); });
+
+        const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; drawScene(); };
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+        attachPointerEvents(canvas);
+        loadAssets();
+        ui.zoomLevel.textContent = '1.0x';
+
+        function gameLoop(timestamp) {
+            drawScene();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Запускаем цикл
+        gameLoop();
+    </script>
+</body>
+</html>
