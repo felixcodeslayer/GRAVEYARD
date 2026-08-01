@@ -3,14 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Бескрайнее полотно</title>
-    <meta name="description" content="Бескрайнее полотно — интерактивное кладбище воспоминаний. Оставь могилу с именем и эпитафией, броди по бесконечному полю.">
-    <link rel="canonical" href="https://gravesonline.netlify.app/">
-    <meta property="og:title" content="Бескрайнее полотно">
+    <title>Кладбище</title>
+    <meta name="description" content="Кладбище — интерактивное кладбище воспоминаний. Оставь могилу с именем и эпитафией, броди по бесконечному полю.">
+    <link rel="canonical" href="https://gravesonline.rip/">
+    <meta property="og:title" content="Кладбище">
     <meta property="og:description" content="Интерактивное кладбище воспоминаний. Оставь свою могилу на бескрайнем поле.">
-    <meta property="og:url" content="https://gravesonline.netlify.app/">
+    <meta property="og:url" content="https://gravesonline.rip/">
     <meta property="og:type" content="website">
+
+    <!-- ===== ФАВИКОН ===== -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png?v=1" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
+    <link rel="shortcut icon" href="/favicon.ico?v=1" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=1" />
+    <link rel="manifest" href="/site.webmanifest?v=1" />
+
     <style>
+        /* ... (весь твой CSS без изменений) ... */
         *{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden;background:#050505;font-family:'Courier New',monospace;cursor:url('Images/lopata.png') 32 32,auto;touch-action:none;user-select:none;color:#a0a0a0}canvas{display:block;width:100vw;height:100vh;touch-action:none}canvas:active{cursor:url('Images/lopata2.png') 32 32,auto}.modal{position:fixed;transform:translate(-50%,-50%);display:none;background:rgba(5,5,5,0.97);border:1px solid #2a2a2a;border-radius:4px;padding:20px;z-index:100;color:#a0a0a0;box-shadow:0 0 25px rgba(0,0,0,0.9);max-width:90vw;width:500px;font-family:'Courier New',monospace;backdrop-filter:blur(10px);pointer-events:auto;max-height:90vh;overflow-y:auto}.modal input,.modal textarea{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#ccc;padding:8px;margin-bottom:10px;border-radius:2px;font-family:inherit;font-size:14px;box-sizing:border-box;resize:vertical;cursor:url('Images/lopata_text.png') 32 32,text}.modal textarea{min-height:70px}.modal button{background:#1a1a1a;border:1px solid #333;color:#bbb;padding:8px 16px;border-radius:2px;cursor:pointer;font-family:inherit;font-size:14px;margin-right:8px;transition:.2s}.modal button:hover{background:#2a2a2a;border-color:#444}.modal button.cancel{background:transparent;border:1px solid #2a2a2a;color:#888}.modal button.cancel:hover{background:#111}.modal label{display:block;margin-bottom:4px;font-size:13px;color:#777}.form-row{display:flex;gap:16px;margin-bottom:6px}.form-col-left{flex:1;min-width:0}.form-col-right{flex:0 0 120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-left:1px solid #222;padding-left:12px}.form-col-right label{font-size:12px;color:#777;margin-bottom:2px}.preview-block{display:flex;flex-direction:column;align-items:center;gap:8px}.preview-block button{background:transparent;border:none;color:#888;font-size:22px;cursor:pointer;padding:0;line-height:1;transition:.2s}.preview-block button:hover{color:#ccc}.preview-block .preview-img{border:1px solid #333;border-radius:4px;padding:6px;background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:80px;min-width:80px}.preview-block .preview-img img{max-height:80px;max-width:80px;width:auto;height:auto;display:block;image-rendering:pixelated;filter:grayscale(.2)}.preview-block .counter{font-size:12px;color:#666}#graveInfo h3{margin:0 0 8px;color:#bbb;font-size:16px}#graveInfo p{margin:4px 0;font-size:13px;color:#777;word-wrap:break-word}#graveInfo .close-btn{margin-top:12px}
 
         .donate-row {
